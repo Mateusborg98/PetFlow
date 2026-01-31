@@ -50,6 +50,23 @@ public class Atendimento {
 
     @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemAtendimento> itens;
+    
+
+    public Atendimento() {
+    }
+
+    public Atendimento(Long id, LocalDateTime dataHoraEntrada, LocalDateTime dataHoraSaida, StatusAtendimento status,
+            String observacoes, BigDecimal valorTotal, Pet pet, Funcionario funcionario, List<ItemAtendimento> itens) {
+        this.id = id;
+        this.dataHoraEntrada = dataHoraEntrada;
+        this.dataHoraSaida = dataHoraSaida;
+        this.status = status;
+        this.observacoes = observacoes;
+        this.valorTotal = valorTotal;
+        this.pet = pet;
+        this.funcionario = funcionario;
+        this.itens = itens;
+    }
 
     public Long getId() {
         return id;
