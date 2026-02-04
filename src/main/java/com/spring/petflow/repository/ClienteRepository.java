@@ -8,8 +8,6 @@ import com.spring.petflow.entity.Cliente;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
-    void setAtivoFalseById(Long id);
-
     boolean existsByNomeAndTelefone(String nome, String telefone);
 
 }

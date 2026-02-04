@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.spring.petflow.DTO.ClienteRquestDTO;
 import com.spring.petflow.entity.Cliente;
 import com.spring.petflow.entity.StatusAtendimento;
 import com.spring.petflow.repository.AtendimentoRepository;
 import com.spring.petflow.repository.ClienteRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ClienteService {
@@ -20,16 +23,32 @@ public class ClienteService {
         this.AtendimentoRepository = atendimentoRepository;
     }
 
-    public String criarCliente(Cliente cliente) {
-        if (!cliente.getNome().isEmpty() && !cliente.getTelefone().isEmpty()) {
-            clienteRepository.save(cliente);
-            return "Cliente criado com sucesso!";    
+    public void desativarCliente(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        cliente.setAtivo(false);
+        clienteRepository.save(cliente);
+    }
+
+    @Transactional
+    public Cliente criarCliente(ClienteRquestDTO clienteDto) {
+        if (!clienteDto.getNome().isEmpty() && !clienteDto.getTelefone().isEmpty()) {
+            Cliente clienteEntity = new Cliente();
+            clienteEntity.setNome(clienteDto.getNome());
+            clienteEntity.setCpf(clienteDto.getCpf());
+            clienteEntity.setTelefone(clienteDto.getTelefone());
+            clienteEntity.setEmail(clienteDto.getEmail());
+            clienteEntity.setEndereco(clienteDto.getEndereco());
+            return clienteRepository.save(clienteEntity);
         } else {
-            return "Nome e telefone são obrigatórios para criar um cliente.";
+            throw new IllegalStateException(
+                    "Nome e telefone são obrigatórios para criar um cliente.");
         }
     }
 
-    public String deletarCliente(Long id) {
+    @Transactional
+    public void deletarCliente(Long id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado com o ID: " + id));
         boolean existeAberto = AtendimentoRepository.existsByPetClienteIdAndStatusIn(
@@ -42,8 +61,7 @@ public class ClienteService {
             throw new IllegalStateException(
                     "Não é possível deletar o cliente. Existem atendimentos em aberto ou em andamento.");
         } else {
-            clienteRepository.setAtivoFalseById(id);
-            return "Cliente deletado com sucesso!";
+            this.desativarCliente(id);
         }
     }
 }

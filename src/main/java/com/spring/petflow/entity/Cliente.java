@@ -24,11 +24,11 @@ public class Cliente {
     @Column(nullable = false, unique = true, length = 14)
     private String cpf;
 
+    @Column(nullable = false)
     private String telefone;
+
     private String email;
     private String endereco;
-
-    @Column(nullable = false)
     private Boolean ativo = true;
 
     @OneToMany(mappedBy = "cliente")
